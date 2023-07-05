@@ -23,7 +23,6 @@ const breadcrumbItems = ref([
 const searchAddressText = ref('');
 const addressData = ref({}); // data after request to get ppl from address
 
-
 function handleSubmitAddress() {
     const payload = {
         address: searchAddressText.value

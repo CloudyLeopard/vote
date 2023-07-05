@@ -1,8 +1,50 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, inject, watch, onMounted } from 'vue'
+import axios from 'axios';
+import { useRoute } from 'vue-router'
 
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
+
+// define global variables
+const $hostname = inject('$hostname')
+
+// local var
+const stances = ref({})
+const sources = ref({})
+const personNotFound = ref(false)
+
+// if url link ending (so name) changes, update site
+const route = useRoute()
+watch(
+    () => route.params.name,
+    (cur_name) => {
+        fetchData(cur_name)
+    },
+    { immediate: true }
+)
+
+function fetchData(name) {
+    const path = `${$hostname}/person`
+    axios.get(path, {
+        params: {
+            name: name
+        }
+    })
+        .then((res) => {
+            if (res.data.status == 'success') {
+                stances.value = res.data.data.stances
+                sources.value = res.data.data.sources
+            } else {
+                personNotFound.value = true
+                console.log(res.data.message)
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+}
+
 
 const series = [{
     data: [540, 580, 690, 1100, 1200, 1380]
@@ -45,14 +87,14 @@ onMounted(() => {
                 <div class="col-12 md:col-4">
                     <div class="flex w-full h-full">
                         <img class="profile-img vertical-align-middle w-10rem m-auto block"
-                            src="https://cdn.schoolboardwatchlist.org/be/2021/08/09124556/Screen-Shot-2021-08-09-at-12.45.39-PM.png">
+                            src="/src/assets/blueperson.png">
                     </div>
 
                 </div>
                 <div class="col-12 md:col-6">
                     <div class="profile-info">
                         <h2 class="profile-name">
-                            Someone random
+                            {{  route.params.name }}
                         </h2>
                         <p class="profile-subtext">
                             Party | State
@@ -73,6 +115,16 @@ onMounted(() => {
 
         <!-- content -->
         <div class="content-container py-5 px-5 lg:px-8">
+            <!-- person not found card -->
+            <Card class="mb-3 shadow-3" style="backgroundColor: var(--red-300)">
+                <template #title>"{{ route.params.name }}" Missing From Database</template>
+                <template #content>
+                    <p>
+                        If you would like to add information to this person's profile, click here
+                    </p>
+                </template>
+            </Card>
+
             <!-- similarity score card -->
             <Card class="mb-3 shadow-3">
                 <template #title> Similarity Score </template>
@@ -104,15 +156,15 @@ onMounted(() => {
             </Card>
 
             <!-- viewpoint breakdown card -->
-            <Card class="mb-3 shadow-3">
-                <template #title> 1. What is ...</template>
+            <Card v-for="(stance, index) in stances" class="mb-3 shadow-3">
+                <template #title>{{ index+1 }}. {{ stance.issue }}</template>
+                <template #subtitle>{{ stance.category }}</template>
                 <template #content>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error
-                        repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa
-                        ratione quam
-                        perferendis esse, cupiditate neque
-                        quas!
+                        Stance: {{ stance.stance }}
+                    </p>
+                    <p>
+                        Reasoning: {{ stance.reasoning }}
                     </p>
                 </template>
             </Card>
