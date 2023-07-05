@@ -35,6 +35,7 @@ function fetchData(name) {
             if (res.data.status == 'success') {
                 stances.value = res.data.data.stances
                 sources.value = res.data.data.sources
+                personNotFound.value = false
             } else {
                 personNotFound.value = true
                 console.log(res.data.message)
@@ -116,7 +117,7 @@ onMounted(() => {
         <!-- content -->
         <div class="content-container py-5 px-5 lg:px-8">
             <!-- person not found card -->
-            <Card class="mb-3 shadow-3" style="backgroundColor: var(--red-300)">
+            <Card v-if="personNotFound" class="mb-3 shadow-3" style="backgroundColor: var(--red-300)">
                 <template #title>"{{ route.params.name }}" Missing From Database</template>
                 <template #content>
                     <p>

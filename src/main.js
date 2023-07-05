@@ -51,7 +51,7 @@ const app = createApp(App)
     .component('Card', Card)
     .component('InputText', InputText)
 
-app.provide('$hostname', 'http://localhost:5001')
+app.provide('$hostname', 'https://vote-easy.azurewebsites.net/')
 
 
 app.mount('#app')
