@@ -1,17 +1,20 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+
 import axios from 'axios';
 
 import Fieldset from 'primevue/fieldset';
 import Breadcrumb from 'primevue/breadcrumb';
 
+import { useUserStore } from '../stores/user.js'
 import TheProfileSelection from '../components/TheProfileSelection.vue'
 import HomeAddressForm from '../components/HomeAddressForm.vue'
 import HomePolCard from '../components/HomePolCard.vue'
 
 // define global variables
 const $hostname = inject('$hostname')
+const user = useUserStore()
 
 // setup router for redirection
 const router = useRouter()

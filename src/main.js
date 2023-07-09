@@ -1,4 +1,6 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
 import App from './App.vue'
 import router from './router'
 
@@ -41,8 +43,12 @@ library.add(faBookmark)
 import 'typeface-roboto';
 import 'typeface-mali';
 
+// pinia for storing global states
+const pinia = createPinia()
+
 const app = createApp(App)
     .use(router)
+    .use(pinia)
     .use(PrimeVue)
     // .use(Toast)
     .use(ToastService)
@@ -51,7 +57,7 @@ const app = createApp(App)
     .component('Card', Card)
     .component('InputText', InputText)
 
-app.provide('$hostname', 'https://vote-easy.azurewebsites.net/')
-
+// app.provide('$hostname', 'https://vote-easy.azurewebsites.net/')
+app.provide('$hostname', 'http://127.0.0.1:5001/')
 
 app.mount('#app')
