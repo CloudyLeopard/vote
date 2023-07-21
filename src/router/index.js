@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../views/Home.vue'
+
 import Summary from '../views/Summary.vue'
 import Analyze from '../views/Analyze.vue'
-import Contenders from '../views/Contenders.vue'
+import Ballot from '../views/Ballot.vue'
 import Person from '../views/Person.vue'
+import Compare from '../views/Compare.vue'
 
 
 const router = createRouter({
@@ -10,17 +13,25 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/contenders'
-    },
-    {
-      path: '/contenders',
-      name: 'Contenders',
-      component: Contenders
+      component: Home,
+      name: 'Home',
+      children: [
+        {
+          path: '/contenders',
+          name: 'Ballot',
+          component: Ballot
+        },
+      ]
     },
     {
       path: '/contenders/:name',
       name: 'Contender',
       component: Person
+    },
+    {
+      path: '/compare',
+      name: 'Compare',
+      component: Compare
     },
     {
       path: '/analyze',

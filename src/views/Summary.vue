@@ -3,6 +3,11 @@ import axios from 'axios'
 
 import { ref } from 'vue'
 
+import { useHostnameStore } from '../stores/host.js'
+
+const host = useHostnameStore()
+const $hostname = host.url // hosturl
+
 const summary = ref('')
 
 const genSummaryForm = ref({
@@ -13,7 +18,7 @@ const genSummaryForm = ref({
 })
 
 function genSummary(payload) {
-    const path = 'http://localhost:5001/summary'
+    const path = `${$hostname}/summary`
     axios.post(path, payload)
         .then((res) => {
             summary.value = res.data.summary

@@ -1,13 +1,16 @@
 <script setup>
-import { ref, inject, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import axios from 'axios';
 import { useRoute } from 'vue-router'
 
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
 
+import { useHostnameStore } from '../stores/host.js'
+
 // define global variables
-const $hostname = inject('$hostname')
+const host = useHostnameStore()
+const $hostname = host.url // hosturl
 
 // local var
 const stances = ref({})

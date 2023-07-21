@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios'
 
-// define global variables
-const $hostname = inject('$hostname')
+import { useHostnameStore } from './host';
 
 export const useUserStore = defineStore({
     id: 'user',
@@ -28,7 +27,8 @@ export const useUserStore = defineStore({
         localStorage.setItem('userName', userName)
       },
       async fetchUserData() {
-        const path = `${$hostname}/user`
+        const hostname = useHostnameStore()
+        const path = `${hostname.getUrl}/user`
         const response = await axios.get(path, {
             params: {
                 userId: this.userId,

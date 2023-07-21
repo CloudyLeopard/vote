@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 
 import Menu from 'primevue/menu';
-import Toast from 'primevue/toast';
 import Avatar from 'primevue/avatar';
 import { useToast } from 'primevue/usetoast';
 
@@ -45,7 +44,7 @@ cusMenuItems.push(
     {
         label: 'Add new profile',
         icon: 'pi pi-user-plus',
-        // to: '/Form' // not created yet
+        to: '/test'
     }
 )
 
