@@ -30,9 +30,13 @@ const props = defineProps({
     }
 })
 
-const simscore_display = computed(() => (
-    props.simScore + "%"
-))
+const simscore_display = computed(() => {
+    const sim = props.simScore
+    if (sim == null)
+        return "NA"
+    else
+        return sim + '%'
+})
 
 const party = computed(() => {
     const p = props.party.charAt(0).toLowerCase();
@@ -70,6 +74,10 @@ const imgURL = computed(() => {
         return props.imgSource
 })
 
+const personalSiteLink = computed(() => {
+    return "/info/" + props.name.toLowerCase()
+})
+
 const officialWebsiteDisabled = ref(!props.website)
 
 defineEmits(['redirectPage'])
@@ -96,9 +104,12 @@ defineEmits(['redirectPage'])
                     {{ shortenedDescription }}
                 </div>
                 <div class="footer">
-                    <a class="mr-3" :href="website"><Button icon="pi pi-external-link" label="Official Website" :disabled="officialWebsiteDisabled"/></a>
-                    <Button @click="$emit('redirectPage', name)" icon="pi pi-external-link" label="More details"
-                        severity="info" />
+                    <a class="mr-3" :href="website"><Button icon="pi pi-external-link" label="Official Website"
+                            :disabled="officialWebsiteDisabled" /></a>
+                    <router-link :to="personalSiteLink">
+                        <Button icon="pi pi-external-link" label="More details"
+                            severity="info" />
+                    </router-link>
                 </div>
             </div>
         </div>

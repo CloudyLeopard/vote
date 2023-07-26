@@ -1,47 +1,55 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios';
-import { useRoute } from 'vue-router'
 
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
 
 import { useHostnameStore } from '../stores/host.js'
 
-// define global variables
+import PersonHeader from '../components/PersonHeader.vue'
+
+const props = defineProps({
+    payload: Object,
+})
+
+// define global var
 const host = useHostnameStore()
 const $hostname = host.url // hosturl
 
 // local var
-const stances = ref({})
+const header_vars = ref({
+    name: undefined,
+    bio: undefined,
+    p_type: undefined,
+    party: undefined,
+    state: undefined,
+    imgSource: undefined
+})
+const simScore = ref()
+const issues = ref({})
 const sources = ref({})
 const personNotFound = ref(false)
 
-// if url link ending (so name) changes, update site
-const route = useRoute()
-watch(
-    () => route.params.name,
-    (cur_name) => {
-        fetchData(cur_name)
-    },
-    { immediate: true }
-)
 
-function fetchData(name) {
+function fetchData(payload) {
     const path = `${$hostname}/person`
-    axios.get(path, {
-        params: {
-            name: name
-        }
-    })
+    axios.post(path, payload)
         .then((res) => {
             if (res.data.status == 'success') {
-                stances.value = res.data.data.stances
-                sources.value = res.data.data.sources
+                const profile = res.data.data
+
+                header_vars.value.name = profile.name
+                header_vars.value.bio = profile.bio
+                header_vars.value.p_type = profile.type
+
+                simScore.value = profile.simScore
+                issues.value = profile.issues
+                sources.value = profile.sources
                 personNotFound.value = false
             } else {
                 personNotFound.value = true
-                console.log(res.data.message)
+                // console.log(res.data.message)
             }
         })
         .catch((error) => {
@@ -74,9 +82,9 @@ const chartOptions = {
     }
 }
 
-const knobValue = ref(50);
-
 onMounted(() => {
+    fetchData(props.payload)
+
     const chart = ApexCharts;
     chart.render();
 });
@@ -84,44 +92,15 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="mx-0 md:mx-8 bg-white shadow-8">
+    <div class="bg-white shadow-5">
         <!-- header -->
-        <div class="py-5 px-5">
-            <div class="grid p-1">
-                <div class="col-12 md:col-4">
-                    <div class="flex w-full h-full">
-                        <img class="profile-img vertical-align-middle w-10rem m-auto block"
-                            src="/src/assets/blueperson.png">
-                    </div>
-
-                </div>
-                <div class="col-12 md:col-6">
-                    <div class="profile-info">
-                        <h2 class="profile-name">
-                            {{  route.params.name }}
-                        </h2>
-                        <p class="profile-subtext">
-                            Party | State
-                        </p>
-                        <p class="profile-description">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error
-                            repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione
-                            quam perferendis esse, cupiditate neque quas!
-                        </p>
-                        <div class="flex column-gap-3">
-                            <i class="pi pi-facebook"></i>
-                            <i class="pi pi-twitter"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <PersonHeader v-bind="header_vars"></PersonHeader>
 
         <!-- content -->
         <div class="content-container py-5 px-5 lg:px-8">
             <!-- person not found card -->
             <Card v-if="personNotFound" class="mb-3 shadow-3" style="backgroundColor: var(--red-300)">
-                <template #title>"{{ route.params.name }}" Missing From Database</template>
+                <template #title>"{{ payload.id_1 }}" Missing From Database</template>
                 <template #content>
                     <p>
                         If you would like to add information to this person's profile, click here
@@ -130,25 +109,17 @@ onMounted(() => {
             </Card>
 
             <!-- similarity score card -->
-            <Card class="mb-3 shadow-3">
+            <Card v-else class="mb-3 shadow-3">
                 <template #title> Similarity Score </template>
                 <template #content>
                     <div class="grid">
-                        <div class="col-12">
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error
-                                repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa
-                                ratione quam
-                                perferendis esse, cupiditate neque
-                                quas!
-                            </p>
-                        </div>
+                        <!-- can add similarity description here -->
                         <div class="col-12 lg:col-4">
                             <!-- similarity score display -->
                             <div class="flex w-full h-full">
                                 <Knob
                                     class="vertical-align-middle m-auto block flex align-items-center justify-content-center"
-                                    v-model="knobValue" valueTemplate="{value}%" :size="150" readonly />
+                                    v-model="simScore" valueTemplate="{value}%" :size="150" readonly />
                             </div>
                         </div>
                         <div class="col-12 lg:col-8">
@@ -160,8 +131,8 @@ onMounted(() => {
             </Card>
 
             <!-- viewpoint breakdown card -->
-            <Card v-for="(stance, index) in stances" class="mb-3 shadow-3">
-                <template #title>{{ index+1 }}. {{ stance.issue }}</template>
+            <Card v-for="(stance, index) in issues" class="mb-3 shadow-3">
+                <template #title>{{ index + 1 }}. {{ stance.issue }}</template>
                 <template #subtitle>{{ stance.category }}</template>
                 <template #content>
                     <p>

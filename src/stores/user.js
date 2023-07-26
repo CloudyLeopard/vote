@@ -20,11 +20,11 @@ export const useUserStore = defineStore({
     actions: {
       setUserId(id) {
         this.userId = id;
-        localStorage.setItem('userId', userId)
+        localStorage.setItem('userId', id)
       },
       setUserName(name) {
         this.userName = name;
-        localStorage.setItem('userName', userName)
+        localStorage.setItem('userName', name)
       },
       async fetchUserData() {
         const hostname = useHostnameStore()

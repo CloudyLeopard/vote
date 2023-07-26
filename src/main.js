@@ -12,6 +12,7 @@ import Divider from 'primevue/divider';
 import InputText from 'primevue/inputtext';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
+import RadioButton from 'primevue/radiobutton';
 
 
 // import bootstrap styling
@@ -60,6 +61,7 @@ const app = createApp(App)
     .component('InputText', InputText)
     .component('Toast', Toast)
     .component('Divider', Divider)
+    .component('RadioButton', RadioButton)
 
 // app.provide('$hostname', 'http://127.0.0.1:5001/')
 

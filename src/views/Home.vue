@@ -13,13 +13,15 @@ const menuitems = ref([
     },
     {
         label: 'Elected Officials',
-        to: 'Contenders'
+        to: '/ballot'
     },
     {
-        label: '2024 Ballot'
+        label: '2024 Ballot',
+        to: '/ballot'
     },
     {
-        label: 'Compare'
+        label: 'Compare',
+        to: '/compare'
     }
 ])
 
@@ -33,7 +35,7 @@ const visible = ref(true) // for modal visibility
             <img alt="logo" src="/usflag.ico" height="40" class="mr-2" />
         </template>
         <template #end>
-            <router-link to="Contenders"><i class="pi pi-user"></i></router-link>
+            <router-link to="/profile"><i class="pi pi-user"></i></router-link>
         </template>
     </Menubar>
 

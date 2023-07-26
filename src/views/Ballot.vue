@@ -1,10 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-
 import axios from 'axios';
-
-import RadioButton from 'primevue/radiobutton';
 
 import { useUserStore } from '../stores/user.js'
 import { useHostnameStore } from '../stores/host.js'
@@ -18,9 +14,6 @@ const user = useUserStore()
 const host = useHostnameStore()
 const $hostname = host.url // hosturl
 
-// setup router for redirection
-const router = useRouter()
-
 const searchAddressText = ref('');
 const politicianData = ref({}); // data after request to get ppl from address
 const isDataLoaded = ref(false)
@@ -32,7 +25,8 @@ const district = ref('')
 
 function handleSubmitAddress() {
     const payload = {
-        address: searchAddressText.value
+        address: searchAddressText.value,
+        user_id: user.userId
     }
     submitPoliticianData(payload)
 }
@@ -64,15 +58,10 @@ const positionCategories = ref([
     { name: 'School board', key: 'school_board_members' }
 ])
 
-function handleContenderRedirect(contenderName) {
-    const decodedName = decodeURIComponent(contenderName);
-    router.push({ name: 'Contender', params: { name: decodedName } })
-}
-
-
 onMounted(() => {
     submitPoliticianData({
-        address: ""
+        address: "",
+        user_id: user.userId
     })
 })
 
@@ -101,20 +90,6 @@ onMounted(() => {
         <template v-if="isDataLoaded">
             <BallotList :politiciansData="politicianData" :position="selectedPosition"></BallotList>
         </template>
-
-
-        <!-- Different position categories-->
-        <!-- <Fieldset v-for="(positionData, positionName) in politicianData.categories" :legend="positionName" :toggleable="true">
-            <div class="grid">
-                <div v-for="(person, index) in positionData" :key=index class="col-12 md:col-6 lg:col-4">
-                    <BallotListCard v-bind="person" @redirectPage="handleContenderRedirect"/>
-                </div>
-            </div>
-        </Fieldset> -->
-
-
-
-
     </div>
 </template>
 
