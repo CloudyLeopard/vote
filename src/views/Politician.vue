@@ -2,9 +2,9 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useUserStore } from '../stores/user.js'
+import { useUserStore } from '@/stores'
 
-import Person from './Person.vue'
+import Person from './Person/Person.vue'
 
 // define global variables
 const user = useUserStore()

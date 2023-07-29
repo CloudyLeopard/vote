@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import Home from '../views/Home/Home.vue'
 
 import Summary from '../views/Summary.vue'
 import Analyze from '../views/Analyze.vue'
-import Ballot from '../views/Ballot.vue'
+import Ballot from '../views/Ballot/Ballot.vue'
 import Politician from '../views/Politician.vue'
 import Compare from '../views/Compare.vue'
-import Quiz from '../views/Quiz.vue'
+import Quiz from '../views/Profile/Quiz.vue'
 import NotFound from '../views/NotFound.vue'
-import Profile from '../views/Profile.vue'
+import Profile from '../views/Profile/Profile.vue'
 
 
 const router = createRouter({

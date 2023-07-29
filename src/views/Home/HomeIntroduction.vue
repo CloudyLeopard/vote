@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import HomeIntroCard from '../components/HomeIntroCard.vue'
+import HomeIntroCard from './HomeIntroCard.vue'
 
 const items = ref([
     {

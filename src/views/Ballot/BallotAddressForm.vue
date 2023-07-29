@@ -1,5 +1,5 @@
 <script setup>
-import CustomInput from '../components/CustomInput.vue'
+import CustomInput from '@/components/CustomInput.vue'
 defineProps(['modelValue'])
 defineEmits(['update:modelValue', 'submitForm'])
 

@@ -2,18 +2,15 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-import { useHostnameStore } from '../stores/host.js'
-import { useUserStore } from '../stores/user.js'
+import { useUserStore } from '@/stores'
 
 import { useToast } from 'primevue/usetoast';
 
-import QuizQuestion from '../components/QuizQuestion.vue'
-
+import QuizQuestion from './QuizQuestion.vue'
 const toast = useToast();
 
 // define global var
-const host = useHostnameStore()
-const $hostname = host.url // hosturl
+const $hostname = `${import.meta.env.VITE_API_URL}`;
 const user = useUserStore()
 
 const QUESTIONS_PER_LOAD = 3

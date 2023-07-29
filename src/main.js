@@ -10,9 +10,10 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Divider from 'primevue/divider';
 import InputText from 'primevue/inputtext';
-import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import RadioButton from 'primevue/radiobutton';
+import ToastService from 'primevue/toastservice';
+import DialogService from 'primevue/dialogservice';
 
 
 // import bootstrap styling
@@ -55,6 +56,7 @@ const app = createApp(App)
     .use(pinia)
     .use(PrimeVue)
     .use(ToastService)
+    .use(DialogService)
     .component('font-awesome-icon', FontAwesomeIcon)
     .component('Button', Button)
     .component('Card', Card)

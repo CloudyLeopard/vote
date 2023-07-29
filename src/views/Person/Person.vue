@@ -5,9 +5,9 @@ import axios from 'axios';
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
 
-import { useHostnameStore } from '../stores/host.js'
+import { useHostnameStore } from '@/stores/host.js'
 
-import PersonHeader from '../components/PersonHeader.vue'
+import PersonHeader from './PersonHeader.vue'
 
 const props = defineProps({
     payload: Object,

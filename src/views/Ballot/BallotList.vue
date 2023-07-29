@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, toRefs } from 'vue'
-import BallotListCard from '../components/BallotListCard.vue'
+import BallotListCard from './BallotListCard.vue'
 
 const props = defineProps({
     politiciansData: Object,

@@ -2,17 +2,15 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios';
 
-import { useUserStore } from '../stores/user.js'
-import { useHostnameStore } from '../stores/host.js'
+import { useUserStore } from '@/stores'
 
-import BallotAddressForm from '../components/BallotAddressForm.vue'
+import BallotAddressForm from './BallotAddressForm.vue'
 import BallotList from './BallotList.vue'
 
 // define global variables
 const user = useUserStore()
 
-const host = useHostnameStore()
-const $hostname = host.url // hosturl
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 const searchAddressText = ref('');
 const politicianData = ref({}); // data after request to get ppl from address
@@ -32,7 +30,7 @@ function handleSubmitAddress() {
 }
 
 function submitPoliticianData(payload) {
-    const path = $hostname + '/address'
+    const path = baseUrl + '/address'
     axios.post(path, payload)
         .then((res) => {
             politicianData.value = res.data
