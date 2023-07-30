@@ -2,26 +2,34 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-import { useUserStore } from '@/stores'
+import { useUserStore, useProfilesStore } from '@/stores'
 
 import { useToast } from 'primevue/usetoast';
 
+import CustomInput from '@/components/CustomInput.vue'
 import QuizQuestion from './QuizQuestion.vue'
 const toast = useToast();
 
 // define global var
-const $hostname = `${import.meta.env.VITE_API_URL}`;
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 const user = useUserStore()
+const profiles = useProfilesStore()
 
 const QUESTIONS_PER_LOAD = 3
 
-// number of issues loaded for each category
+// 0. Trivial questions
+const user_name = ref('')
+
+// 1. list of issues fetched from server; also will store results with "stance" and "importance" keys
+const issue_list = ref([])
+
+// 2. list of issues organized into categories
 const categorized_issues = ref({})
 
-// issues that will be displayed depending on how many questions are "loaded" in
+// 3. issues that will be displayed depending on how many questions are "loaded" in
 const categorized_issues_display = ref({})
 
-// increate page number for that category when "load more" is clicked
+// function to increment page number for that category when "load more" is clicked
 function onLoadMore(category) {
     const display_arr = categorized_issues_display.value[category]
     const original_arr = categorized_issues.value[category]
@@ -30,73 +38,105 @@ function onLoadMore(category) {
     categorized_issues_display.value[category] = original_arr.slice(0, new_loaded_num)
 }
 
-// stores the results; linked to the "stance" and "importance" selection via v-model
-const results = ref({})
-
-function submitHandler() {
+// for creating profile
+async function formSubmit() {
     const params = {
-        answers: results.value,
-        user_id: user.userId
+        name: user_name.value,
+        issueStances: issue_list.value,
+        type: "user"
     }
-    const url = $hostname + '/user/newuser'
-    axios.post(url, params)
-        .then((res) => (res.data)) // parse json
-        .then((res) => {
-            if (res['status'] == 'success') {
-                user.setUserId(res['user_id'])
-                toast.add({ severity: 'success', summary: 'Data Added!', detail: 'Successfully created/updated profile', life: 3000 });
-            }
-        })
+    console.log(params)
+    if (profiles.custom_profile) {
+        await updateProfile(params)
+    } else {
+        await createProfile(params)
+    }
 }
 
-onMounted(() => {
-    // get issue list
-    const url = $hostname + '/similarity/issues'
-    axios.get(url)
-        .then((res) => {
-            if (res.data['status'] == 'success') {
-                // temporary var for holding the issue list
-                const issues = res.data['issue_list']
+async function createProfile(params) {
+    const url = baseUrl + '/profile/create'
 
-                // store form's issue_id -> stance(result) pairs 
-                results.value = issues.reduce(function (r, a) {
-                    // note: a.issue_id should be a string here
-                    // due to how js parses JSON data
-                    r[a.issue_id] = {
-                        stance: null,
-                        importance: 3 // default importance value
-                    }
-                    return r
-                }, Object.create(null))
+    try {
+        const response = await axios.post(url, params)
+        const res = response.data
 
-                // "sort" issue list by category into object
-                categorized_issues.value = issues.reduce(function (r, a) {
-                    r[a.category] = r[a.category] || [];
-                    r[a.category].push(a);
-                    return r
-                }, Object.create(null))
+        const prof = profiles.setCustomProfile(res)
+        user.setProfile(prof)
+        toast.add({ severity: 'success', summary: 'Data Added!', detail: 'Id: ' + user.profileId, life: 5000 });
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-                // init number of questions to be displayed
-                const categories = Object.keys(categorized_issues.value);
-                categories.forEach((cat) => {
-                    categorized_issues_display.value[cat] = categorized_issues.value[cat].slice(0, QUESTIONS_PER_LOAD);
-                })
-            }
+async function updateProfile(params) {
+    const url = baseUrl + '/profile/' + profiles.custom_profile.id
+
+    try {
+        const response = await axios.post(url, params)
+        const res = response.data
+
+        const prof = profiles.setCustomProfile(res)
+        user.setProfile(prof)
+        toast.add({ severity: 'success', summary: 'Data Updated!', detail: 'Id: ' + user.profileId, life: 5000 });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function getIssueList() {
+    const url = baseUrl + '/similarity/issues'
+    const params = {}
+    // if a custom profile is already set
+    if (profiles.custom_profile) {
+        params["id"] = profiles.custom_profile.id
+    }
+    try {
+        const response = await axios.get(url, { params: params })
+        const res = response.data
+
+        issue_list.value = res.data.map(issue => {
+            if ("stance" in issue)
+                return issue
             else
-                alert('something went wrong')
+                return {
+                    ...issue,
+                    stance: null,
+                    importance: 3
+                }
         })
+
+        // "sort" issue list by category into object
+        categorized_issues.value = issue_list.value.reduce(function (r, a) {
+            r[a.category] = r[a.category] || [];
+            r[a.category].push(a); // shallow copy of a
+            return r
+        }, Object.create(null))
+
+        // init number of questions to be displayed
+        const categories = Object.keys(categorized_issues.value);
+        categories.forEach((cat) => {
+            categorized_issues_display.value[cat] = categorized_issues.value[cat].slice(0, QUESTIONS_PER_LOAD);
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+onMounted(async () => {
+    // get issue list
+    await getIssueList()
 })
 
 </script>
 
 <template>
     <Toast />
-    <form @submit.prevent="submitHandler">
+    <form @submit.prevent="formSubmit">
+        <CustomInput v-model="user_name" placeholder="Name"></CustomInput>
         <div v-for="(issues, category) in categorized_issues_display" class="category_div" :key="category">
             <h3>{{ category }}</h3>
             <div v-for="issue in issues" class="question_div" :key="issue.issue_id">
-                <QuizQuestion :issue="issue" v-model:stance="results[issue.issue_id]['stance']"
-                    v-model:importance="results[issue.issue_id]['importance']">
+                <QuizQuestion :issue="issue" v-model:stance="issue['stance']" v-model:importance="issue['importance']">
                 </QuizQuestion>
             </div>
             <Button @click="onLoadMore(category)" label="Show More" />

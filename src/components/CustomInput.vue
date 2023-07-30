@@ -1,9 +1,9 @@
 <script setup>
-defineProps(['value', 'placeholder'])
-defineEmits(['update:value'])
+defineProps(['modelValue', 'placeholder'])
+defineEmits(['update:modelValue'])
 </script>
 <template>
-    <input :value="value" @input="$emit('update:value', $event.target.value)"
+    <input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)"
         class="transparent-input" type="text" :placeholder="placeholder">
 </template>
 

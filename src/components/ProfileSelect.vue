@@ -25,6 +25,7 @@ const { all_profiles } = storeToRefs(profilesStore);
 const loading = ref(true)
 loading.value = !profilesStore.getAll() // get all profiles; if successful, getAll() returns true
 
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },

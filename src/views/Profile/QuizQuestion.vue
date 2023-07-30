@@ -35,7 +35,8 @@ function importanceChange() {
     emit('update:importance', importance.value)
 }
 
-const showImportance = ref(false)
+// hide importance UNLESS it's a pre-filled in question
+const showImportance = ref(props.stance != null)
 
 function loadImportance() {
     showImportance.value = true

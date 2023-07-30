@@ -3,19 +3,19 @@ import { ref, computed, toRefs } from 'vue'
 import BallotListCard from './BallotListCard.vue'
 
 const props = defineProps({
-    politiciansData: Object,
+    profiles: Array,
     position: {
         type: String,
     }
 })
 // adding reactivity to the passed-in props
 // so that when its value changes in the parent, this component will get updated
-const {politiciansData, position} = toRefs(props)
+const {profiles, position} = toRefs(props)
 
 // politician list in the data that will get looped
 // when user selects a different position,  list changes
 const politicians = computed(() => {
-    return politiciansData.value['categories'][position.value]
+    return profiles.value.filter(p => p.position == position.value)
 })
 
 function sortLeastToMost(profileA, profileB) {

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios'
 
-const baseUrl = `${import.meta.env.VITE_API_URL}/user`;
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 export const useProfilesStore = defineStore({
     id: 'profiles',
@@ -24,8 +24,14 @@ export const useProfilesStore = defineStore({
     actions: {
         async getAll() {
             try {
-                const response = await axios.get(baseUrl + '/demoprofiles');
-                this.demo_profiles = response.data.map(
+                const params = {
+                    type: "demographic"
+                }
+                const url = baseUrl + '/profiles'
+
+                const response = await axios.get(url, { params: params });
+                const res = response.data
+                this.demo_profiles = res.data.map(
                     p => ({ ...p, to: `/info/${p.name}` })
                 )
                 return true;
@@ -33,8 +39,13 @@ export const useProfilesStore = defineStore({
                 this.demo_profiles = { error };
                 return false;
             }
-
-
         },
+        setCustomProfile(profile) {
+            this.custom_profile = profile
+            // extra stuff to save
+            this.custom_profile["to"] = "/profile/quiz"
+            localStorage.setItem('custom_profile', JSON.stringify(this.custom_profile))
+            return this.custom_profile
+        }
     }
 })

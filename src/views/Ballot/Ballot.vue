@@ -13,7 +13,7 @@ const user = useUserStore()
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 const searchAddressText = ref('');
-const politicianData = ref({}); // data after request to get ppl from address
+const profiles = ref([]); // data after request to get ppl from address
 const isDataLoaded = ref(false)
 
 // voting location
@@ -24,26 +24,28 @@ const district = ref('')
 function handleSubmitAddress() {
     const payload = {
         address: searchAddressText.value,
-        user_id: user.userId
+        compareId: user.profileId
     }
     submitPoliticianData(payload)
 }
 
-function submitPoliticianData(payload) {
-    const path = baseUrl + '/address'
-    axios.post(path, payload)
-        .then((res) => {
-            politicianData.value = res.data
-            isDataLoaded.value = true
+async function submitPoliticianData(payload) {
+    const path = baseUrl + '/profiles'
+    try {
+        const response = await axios.get(path, {params: payload})
+        const res = response.data
 
-            // update voting location for display purposes
-            state.value = politicianData.value.state
-            county.value = politicianData.value.county
-            district.value = politicianData.value.district
-        })
-        .catch((error) => {
-            console.log(error);
-        })
+        profiles.value = res.data
+
+        // update voting location for display purposes
+        state.value = res.state
+        county.value = res.county
+        district.value = res.district
+
+        isDataLoaded.value = true
+    } catch(error) {
+        console.log(error)
+    }
 }
 
 // government position selection
@@ -59,7 +61,7 @@ const positionCategories = ref([
 onMounted(() => {
     submitPoliticianData({
         address: "",
-        user_id: user.userId
+        compareId: user.profileId
     })
 })
 
@@ -86,7 +88,7 @@ onMounted(() => {
         </div>
 
         <template v-if="isDataLoaded">
-            <BallotList :politiciansData="politicianData" :position="selectedPosition"></BallotList>
+            <BallotList :profiles="profiles" :position="selectedPosition"></BallotList>
         </template>
     </div>
 </template>

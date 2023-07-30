@@ -5,17 +5,20 @@ import axios from 'axios';
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
 
-import { useHostnameStore } from '@/stores/host.js'
+import { useUserStore } from '@/stores'
 
 import PersonHeader from './PersonHeader.vue'
 
+// define global variables
+const user = useUserStore()
+
 const props = defineProps({
-    payload: Object,
+    id: String,
+    id_type: String
 })
 
 // define global var
-const host = useHostnameStore()
-const $hostname = host.url // hosturl
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 // local var
 const header_vars = ref({
@@ -28,33 +31,38 @@ const header_vars = ref({
 })
 const simScore = ref()
 const issues = ref({})
-const sources = ref({})
 const personNotFound = ref(false)
 
 
-function fetchData(payload) {
-    const path = `${$hostname}/person`
-    axios.post(path, payload)
-        .then((res) => {
-            if (res.data.status == 'success') {
-                const profile = res.data.data
+async function fetchData() {
+    const path = `${baseUrl}/profile/search`
+    const payload = {
+        name: props.id,
+        compareId: user.profileId
+    }
 
-                header_vars.value.name = profile.name
-                header_vars.value.bio = profile.bio
-                header_vars.value.p_type = profile.type
+    try {
+        const response = await axios.get(path, { params: payload })
+        const res = response.data
 
-                simScore.value = profile.simScore
-                issues.value = profile.issues
-                sources.value = profile.sources
-                personNotFound.value = false
-            } else {
-                personNotFound.value = true
-                // console.log(res.data.message)
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
+        if (res.data.length > 0) {
+            personNotFound.value = false
+            const profile = res.data[0] // using only the first result
+
+            header_vars.value.name = profile.name
+            header_vars.value.bio = profile.bio
+            header_vars.value.p_type = profile.type
+
+            simScore.value = profile.simScore
+            issues.value = profile.issues
+            personNotFound.value = false
+        }
+        else {
+            personNotFound.value = true
+        }
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 
@@ -83,7 +91,7 @@ const chartOptions = {
 }
 
 onMounted(() => {
-    fetchData(props.payload)
+    fetchData()
 
     const chart = ApexCharts;
     chart.render();
@@ -100,7 +108,7 @@ onMounted(() => {
         <div class="content-container py-5 px-5 lg:px-8">
             <!-- person not found card -->
             <Card v-if="personNotFound" class="mb-3 shadow-3" style="backgroundColor: var(--red-300)">
-                <template #title>"{{ payload.id_1 }}" Missing From Database</template>
+                <template #title>"{{ id }}" Missing From Database</template>
                 <template #content>
                     <p>
                         If you would like to add information to this person's profile, click here
