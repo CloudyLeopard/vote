@@ -7,17 +7,16 @@ export const useProfilesStore = defineStore({
     id: 'profiles',
     state: () => ({
         demo_profiles: [],
-        custom_profile: JSON.parse(localStorage.getItem('custom_profile')),
+        custom_profile: JSON.parse(localStorage.getItem('custom_profile')) ||
+            {
+                name: "Custom Profile",
+                id: "",
+                to: "/profile/quiz"
+            },
     }),
     getters: {
         all_profiles: (state) => {
             let custom = state.custom_profile
-            if (!custom)
-                custom = {
-                    name: 'Custom Profile',
-                    id: '',
-                    to: '/profile/quiz',
-                }
             return [custom, ...state.demo_profiles]
         }
     },

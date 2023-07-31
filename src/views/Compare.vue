@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
-import { useHostnameStore } from '../stores/host.js'
 import Dropdown from 'primevue/dropdown';
 import RadioButton from 'primevue/radiobutton';
 import TabView from 'primevue/tabview';
@@ -10,55 +9,16 @@ import { useToast } from 'primevue/usetoast';
 
 const toast = useToast()
 
-const host = useHostnameStore()
-const $hostname = host.url // hosturl
+const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
 const DEFAULT_PROFILE_URL = "/src/assets/blueperson.png"
-
-const searchAddressText = ref('');
-const addressData = ref({}); // data after request to get ppl from address
-
-function handleSubmitAddress() {
-    const payload = {
-        address: searchAddressText.value
-    }
-    submitAddressData(payload)
-}
-
-function submitAddressData(payload) {
-    const path = $hostname + '/address'
-    axios.post(path, payload)
-        .then((res) => {
-            addressData.value = res.data
-            people.value = addressData.value['categories'][selectedPosition.value]
-        })
-        .catch((error) => {
-            console.log(error);
-        })
-}
 
 // sim score, default value = 80
 const sim_score = ref(80)
 
-// government position selection
-const selectedPosition = ref('us_senate')
-const positionCategories = ref([
-    { name: 'US Senate', key: 'us_senate' },
-    { name: 'US Congress', key: 'congressional' },
-    { name: 'Governor', key: 'governor' },
-    { name: 'Mayor', key: 'mayor' },
-    { name: 'School board', key: 'school_board_members' }
-])
-
 // profile image tags
 const left_img_url = ref(DEFAULT_PROFILE_URL)
 const right_img_url = ref(DEFAULT_PROFILE_URL)
-
-// when user selects a different position, dropdown list changes
-watch(selectedPosition, (newPosition) => {
-    if (addressData.value != {})
-        people.value = addressData.value['categories'][newPosition]
-})
 
 
 // dropdown stuff
@@ -137,32 +97,11 @@ watch(selectedPerson1, (newPerson) => {
 watch(selectedPerson2, (newPerson) => {
     right_img_url.value = newPerson['imgSource'] ? newPerson['imgSource'] : "/src/assets/blueperson.png"
 })
-
-onMounted(() => {
-    submitAddressData({
-        address: ""
-    })
-
-})
 </script>
 
 <template>
     <div class="grid">
         <div class="col md:col-6 md:col-offset-3 pt-8">
-            <h2 class="uppercase">Enter your address to find your candidates</h2>
-            <!-- enter zip code-->
-            <form @submit.prevent="handleSubmitAddress">
-                <input v-model="searchAddressText" @keyup.enter="submit" class="transparent-input" type="text" id="address"
-                    placeholder="Enter address/zipcode here">
-            </form>
-            <hr />
-            <div class="flex flex-wrap gap-3">
-                <div v-for="category in positionCategories" :key="category.key" class="flex align-items-center">
-                    <RadioButton v-model="selectedPosition" :inputId="category.key" name="position" :value="category.key" />
-                    <label :for="category.key" class="ml-2">{{ category.name }}</label>
-                </div>
-            </div>
-
             <!-- sim score -->
             <h1 class="sim_score_title flex justify-content-center mt-5">{{ sim_score }}%</h1>
 

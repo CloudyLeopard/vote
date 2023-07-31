@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-import Person from './Person/Person.vue'
+import Person from '@/components/Person/Person.vue'
 
 const id = ref()
 const id_type = ref()

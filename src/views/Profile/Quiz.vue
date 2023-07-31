@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router';
 
 import { useUserStore, useProfilesStore } from '@/stores'
 
@@ -14,11 +15,12 @@ const toast = useToast();
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 const user = useUserStore()
 const profiles = useProfilesStore()
+const route = useRoute()
 
 const QUESTIONS_PER_LOAD = 3
 
 // 0. Trivial questions
-const user_name = ref('')
+const user_name = ref(user.profileName)
 
 // 1. list of issues fetched from server; also will store results with "stance" and "importance" keys
 const issue_list = ref([])
@@ -123,6 +125,8 @@ async function getIssueList() {
 }
 
 onMounted(async () => {
+    // future use cases. e.g. parsing /profile/quiz?id=xxxx
+    console.log(route.query.id)
     // get issue list
     await getIssueList()
 })
