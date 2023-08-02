@@ -47,8 +47,7 @@ async function formSubmit() {
         issueStances: issue_list.value,
         type: "user"
     }
-    console.log(params)
-    if (profiles.custom_profile) {
+    if (profiles.custom_profile.id) {
         await updateProfile(params)
     } else {
         await createProfile(params)
@@ -86,7 +85,7 @@ async function updateProfile(params) {
 }
 
 async function getIssueList() {
-    const url = baseUrl + '/similarity/issues'
+    const url = baseUrl + '/issues'
     const params = {}
     // if a custom profile is already set
     if (profiles.custom_profile) {

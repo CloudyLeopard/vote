@@ -62,9 +62,6 @@ onMounted(() => {
 <template>
     <HomeBanner></HomeBanner>
     <Menubar :model="menuitems" class="navbar">
-        <template #start>
-            <img alt="logo" src="/usflag.ico" height="40" class="mr-2" />
-        </template>
         <template #end>
             <router-link to="/profile"><i class="pi pi-user"></i></router-link>
         </template>
