@@ -47,10 +47,14 @@ async function formSubmit() {
         issueStances: issue_list.value,
         type: "user"
     }
-    if (profiles.custom_profile.id) {
-        await updateProfile(params)
-    } else {
-        await createProfile(params)
+    if (route.query.id)
+        await uslongProfile(params)
+    else {
+        if (profiles.custom_profile.id) {
+            await updateProfile(params)
+        } else {
+            await createProfile(params)
+        }
     }
 }
 
@@ -71,6 +75,22 @@ async function createProfile(params) {
 
 async function updateProfile(params) {
     const url = baseUrl + '/profile/' + profiles.custom_profile.id
+
+    try {
+        const response = await axios.post(url, params)
+        const res = response.data
+
+        const prof = profiles.setCustomProfile(res)
+        user.setProfile(prof)
+        toast.add({ severity: 'success', summary: 'Data Updated!', detail: 'Id: ' + user.profileId, life: 5000 });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function uslongProfile(params) {
+    const uslong_id = route.query.id
+    const url = baseUrl + '/uslong/profile/' + uslong_id
 
     try {
         const response = await axios.post(url, params)

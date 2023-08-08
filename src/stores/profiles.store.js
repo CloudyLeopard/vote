@@ -24,7 +24,7 @@ export const useProfilesStore = defineStore({
         async getAll() {
             try {
                 const params = {
-                    type: "demographic"
+                    type: "contender"
                 }
                 const url = baseUrl + '/profiles'
 

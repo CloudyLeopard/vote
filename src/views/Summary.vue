@@ -3,7 +3,6 @@ import axios from 'axios'
 
 import { ref } from 'vue'
 
-import { useHostnameStore } from '../stores/host.js'
 
 const host = useHostnameStore()
 const $hostname = host.url // hosturl

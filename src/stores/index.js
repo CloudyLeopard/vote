@@ -1,2 +1,2 @@
 export * from './profiles.store';
-export * from './user';
+export * from './user.store';
