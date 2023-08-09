@@ -21,6 +21,7 @@ const QUESTIONS_PER_LOAD = 3
 
 // 0. Trivial questions
 const user_name = ref(user.profileName)
+const email = ref("")
 
 // 1. list of issues fetched from server; also will store results with "stance" and "importance" keys
 const issue_list = ref([])
@@ -44,6 +45,7 @@ function onLoadMore(category) {
 async function formSubmit() {
     const params = {
         name: user_name.value,
+        email: email.value,
         issueStances: issue_list.value,
         type: "user"
     }
@@ -107,16 +109,16 @@ async function uslongProfile(params) {
 async function getIssueList() {
     const url = baseUrl + '/issues'
     const params = {}
-    // if a custom profile is already set
+    // if a custom profile is already set, get the data associated with that profile
     if (profiles.custom_profile) {
         params["id"] = profiles.custom_profile.id
     }
     try {
         const response = await axios.get(url, { params: params })
         const res = response.data
-
+        
         issue_list.value = res.data.map(issue => {
-            if ("stance" in issue)
+            if ("stance" in issue) // autofill form if value exists
                 return issue
             else
                 return {
@@ -125,6 +127,8 @@ async function getIssueList() {
                     importance: 3
                 }
         })
+        if ("email" in res)
+            email.value = res.data.email
 
         // "sort" issue list by category into object
         categorized_issues.value = issue_list.value.reduce(function (r, a) {
@@ -156,6 +160,7 @@ onMounted(async () => {
     <Toast />
     <form @submit.prevent="formSubmit">
         <CustomInput v-model="user_name" placeholder="Name"></CustomInput>
+        <CustomInput v-model="email" placeholder="Email"></CustomInput>
         <div v-for="(issues, category) in categorized_issues_display" class="category_div" :key="category">
             <h3>{{ category }}</h3>
             <div v-for="issue in issues" class="question_div" :key="issue.issue_id">
