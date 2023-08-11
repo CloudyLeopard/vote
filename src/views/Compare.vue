@@ -7,13 +7,15 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import { useToast } from 'primevue/usetoast';
 import { useUserStore } from '@/stores'
+import { useRoute } from 'vue-router'
 
-import { fetchProfileById, fetchProfileByName, fetchSimilarity } from "@/composables"
+import { fetchProfile, fetchProfileById, fetchSimilarity } from "@/composables"
 
 const toast = useToast()
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 const user = useUserStore()
+const route = useRoute()
 
 const DEFAULT_PROFILE_URL = "/src/assets/blueperson.png"
 
@@ -46,11 +48,9 @@ const searchLeft = ref("")
 const searchRight = ref("")
 async function onSearch(position) {
     if (position == 'left') {
-        const profile = await fetchProfileByName(searchLeft.value)
-        leftProfile.value = (profile) ? profile : null
+        leftProfile.value = await fetchProfile(searchLeft.value, "name")
     } else {
-        const profile = await fetchProfileByName(searchRight.value)
-        rightProfile.value = (profile) ? profile : null
+        rightProfile.value = await fetchProfile(searchRight.value, "name")
     }
 }
 
@@ -70,9 +70,6 @@ async function calculateSim() {
         right_stances.value = p2_stances.value
     }
 }
-
-// issue/ans stuff
-const compare_data = ref({})
 
 function translate_stance(i) {
     let res = ""
@@ -100,8 +97,28 @@ function translate_stance(i) {
 }
 onMounted(async () => {
     // cuz i'm lazy
-    leftProfile.value = await fetchProfileById(user.profileId)
-    rightProfile.value = await fetchProfileByName("Joe Biden")
+
+    if (route.query.id1) {
+        const id_1 = route.query.id1
+        leftProfile.value = await fetchProfile(id_1, "id")
+        
+    } else if (route.query.name1) {
+        const name_1 = route.query.name1
+        leftProfile.value = await fetchProfile(name_1, "name")
+    } else {
+        leftProfile.value = await fetchProfile("Joe Biden", "name")
+    }
+    
+    if (route.query.id2) {
+        const id_2 = route.query.id2
+        rightProfile.value = await fetchProfile(id_2, "id")
+    } else if (route.query.name2) {
+        const name_2 = route.query.name2
+        rightProfile.value = await fetchProfile(name_2, "name")
+    } else {
+        rightProfile.value = await fetchProfile("Joe Biden", "name")
+    }
+
 })
 </script>
 

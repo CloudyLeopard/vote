@@ -9,6 +9,7 @@ import Compare from '../views/Compare.vue'
 import Quiz from '../views/Profile/Quiz.vue'
 import NotFound from '../views/NotFound.vue'
 import Profile from '../views/Profile/Profile.vue'
+import ProfilePage from '../views/Profile/ProfilePage.vue'
 
 
 const router = createRouter({
@@ -37,6 +38,10 @@ const router = createRouter({
           path: '/profile',
           name: 'Profile',
           component: Profile
+        },
+        {
+          path: '/profile/:id',
+          component: ProfilePage
         },
         {
           path: '/profile/quiz',

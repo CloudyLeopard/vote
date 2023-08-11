@@ -3,6 +3,24 @@ import axios from 'axios'
 
 const baseUrl = `${import.meta.env.VITE_API_URL}`;
 
+/*
+returns profile (null if not found)
+*/
+export async function fetchProfile(id, id_type, compareId = null) {
+    let profile = null;
+    if (id_type == "name") {
+        const { profiles } = await fetchProfileByName(id, compareId)
+        if (profiles.length > 0) {
+            profile = profiles[0]
+        }
+    }
+    else if (id_type == "id") {
+        profile = await fetchProfileById(id, compareId)
+    }
+
+    return profile
+}
+
 export async function fetchProfileById(id) {
     const url = baseUrl+"/profile/"+id
     try {
@@ -11,10 +29,15 @@ export async function fetchProfileById(id) {
         return profile
     } catch (error) {
         console.log(error)
+        return null
     }
 }
 
-export async function fetchProfileByName(name, compareId) {
+export async function fetchProfileByName(name, compareId = null) {
+    let profiles = []
+    let num_of_profile = null
+    let error = null
+
     const path = `${baseUrl}/profile/search`
     const payload = {
         name: name,
@@ -25,16 +48,12 @@ export async function fetchProfileByName(name, compareId) {
         const response = await axios.get(path, { params: payload })
         const res = response.data
 
-        if (res.data.length > 0) {
-            const profile = res.data[0] // using only the first result
-            return profile
-        }
-        else {
-            return null
-        }
-    } catch (error) {
-        console.log(error)
+        profiles = res.data // using only the first result
+        num_of_profile = res.data.length
+    } catch (err) {
+        error = err
     }
+    return { profiles, num_of_profile, error }
 }
 
 export async function fetchSimilarity(id1, id2) {

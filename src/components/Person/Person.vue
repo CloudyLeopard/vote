@@ -5,6 +5,7 @@ import axios from 'axios';
 import ApexCharts from "vue3-apexcharts";
 import Knob from 'primevue/knob';
 
+import { fetchProfile } from '@/composables'
 import { useUserStore } from '@/stores'
 
 import PersonHeader from './PersonHeader.vue'
@@ -34,35 +35,14 @@ const issues = ref({})
 const personNotFound = ref(false)
 
 
-async function fetchData() {
-    const path = `${baseUrl}/profile/search`
-    const payload = {
-        name: props.id,
-        compareId: user.profileId
-    }
+function fillInProfile(profile) {
+    header_vars.value.name = profile.name
+    header_vars.value.bio = profile.bio
+    header_vars.value.p_type = profile.type
 
-    try {
-        const response = await axios.get(path, { params: payload })
-        const res = response.data
-
-        if (res.data.length > 0) {
-            personNotFound.value = false
-            const profile = res.data[0] // using only the first result
-
-            header_vars.value.name = profile.name
-            header_vars.value.bio = profile.bio
-            header_vars.value.p_type = profile.type
-
-            simScore.value = profile.simScore
-            issues.value = profile.issues
-            personNotFound.value = false
-        }
-        else {
-            personNotFound.value = true
-        }
-    } catch (error) {
-        console.log(error)
-    }
+    simScore.value = profile.simScore
+    issues.value = profile.issues
+    personNotFound.value = false
 }
 
 
@@ -90,8 +70,17 @@ const chartOptions = {
     }
 }
 
-onMounted(() => {
-    fetchData()
+onMounted(async () => {
+    const profile = await fetchProfile(props.id, props.id_type, user.profileId)
+    
+    if (profile) {
+        personNotFound.value = false
+        fillInProfile(profile)
+    }
+    else {
+        personNotFound.value = true
+    }
+
 
     const chart = ApexCharts;
     chart.render();
