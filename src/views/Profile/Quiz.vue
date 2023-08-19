@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router';
 
 import { useUserStore, useProfilesStore } from '@/stores'
+import { fetchProfileById } from '@/composables'
 
 import { useToast } from 'primevue/usetoast';
 
@@ -49,14 +50,13 @@ async function formSubmit() {
         issueStances: issue_list.value,
         type: "user"
     }
-    if (route.query.id)
-        await uslongProfile(params)
+    if (route.query.id) {
+        await updateProfile(params, route.query.id)
+    } else if (profiles.custom_profile.id) {
+        await updateProfile(params, profiles.custom_profile.id)
+    }
     else {
-        if (profiles.custom_profile.id) {
-            await updateProfile(params)
-        } else {
-            await createProfile(params)
-        }
+        await createProfile(params)
     }
 }
 
@@ -75,24 +75,8 @@ async function createProfile(params) {
     }
 }
 
-async function updateProfile(params) {
-    const url = baseUrl + '/profile/' + profiles.custom_profile.id
-
-    try {
-        const response = await axios.post(url, params)
-        const res = response.data
-
-        const prof = profiles.setCustomProfile(res)
-        user.setProfile(prof)
-        toast.add({ severity: 'success', summary: 'Data Updated!', detail: 'Id: ' + user.profileId, life: 5000 });
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-async function uslongProfile(params) {
-    const uslong_id = route.query.id
-    const url = baseUrl + '/uslong/profile/' + uslong_id
+async function updateProfile(params, id) {
+    const url = baseUrl + '/profile/' + id
 
     try {
         const response = await axios.post(url, params)
@@ -109,14 +93,32 @@ async function uslongProfile(params) {
 async function getIssueList() {
     const url = baseUrl + '/issues'
     const params = {}
-    // if a custom profile is already set, get the data associated with that profile
-    if (profiles.custom_profile) {
-        params["id"] = profiles.custom_profile.id
+
+    let id; // vote easy id we are using
+    let existing_custom_prof; // custom profile of id
+    if (route.query.id) {
+        // if there is an id in url, use that
+        id = route.query.id
+    } else if (profiles.custom_profile.id) {
+        // if not, but a custom profile is set, use that id instead
+        id = profiles.custom_profile.id
+    }
+
+    console.log("ID: " + id)
+
+    if (id) {
+        existing_custom_prof = await fetchProfileById(id)
+        if (existing_custom_prof) {
+            params["id"] = existing_custom_prof["id"]
+            // fill in values in form
+            email.value = existing_custom_prof["email"]
+            user_name.value = existing_custom_prof["name"]
+        }
     }
     try {
         const response = await axios.get(url, { params: params })
         const res = response.data
-        
+
         issue_list.value = res.data.map(issue => {
             if ("stance" in issue) // autofill form if value exists
                 return issue

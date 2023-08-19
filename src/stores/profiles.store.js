@@ -45,6 +45,9 @@ export const useProfilesStore = defineStore({
             this.custom_profile["to"] = "/profile/quiz"
             localStorage.setItem('custom_profile', JSON.stringify(this.custom_profile))
             return this.custom_profile
+        },
+        clearCustomProfile() {
+            localStorage.clear()
         }
     }
 })
